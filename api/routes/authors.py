@@ -29,25 +29,29 @@ def create_author():
 @jwt_required()
 def get_author_list():
     fetched = Author.query.filter(Author.created_by == current_user.id).all()
-    for i in fetched:
-        print(i.created.username)
-    author_schema = AuthorSchema(many=True, only=['first_name', 'last_name', 'id', "created_by"])
+    author_schema = AuthorSchema(many=True, only=['first_name', 'last_name', 'id'])
     authors = author_schema.dump(fetched)
     return response_with(resp.SUCCESS_200, value={"authors": authors})
 
 
 @author_routes.route('/<int:author_id>', methods=['GET'])
+@jwt_required()
 def get_author_detail(author_id):
     fetched = Author.query.get_or_404(author_id)
+    if fetched.created_by != current_user.id:
+        return response_with(resp.FORBIDDEN_403)
     author_schema = AuthorSchema()
     author = author_schema.dump(fetched)
     return response_with(resp.SUCCESS_200, value={"author": author})
 
 
 @author_routes.route('/<int:id>', methods=['PUT'])
+@jwt_required()
 def update_author_detail(id_):
     data = request.get_json()
     get_author = Author.query.get_or_404(id_)
+    if get_author.created_by != current_user.id:
+        return response_with(resp.FORBIDDEN_403)
     get_author.first_name = data['first_name']
     get_author.last_name = data['last_name']
     db.session.add(get_author)
@@ -58,9 +62,12 @@ def update_author_detail(id_):
 
 
 @author_routes.route('/<int:id>', methods=['PATCH'])
+@jwt_required()
 def modify_author_detail(id_):
     data = request.get_json()
     get_author = Author.query.get(id_)
+    if get_author.created_by != current_user.id:
+        return response_with(resp.FORBIDDEN_403)
     if data.get('first_name'):
         get_author.first_name = data['first_name']
     if data.get('last_name'):
@@ -73,8 +80,11 @@ def modify_author_detail(id_):
 
 
 @author_routes.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_author(id_):
     get_author = Author.query.get_or_404(id_)
+    if get_author.created_by != current_user.id:
+        return response_with(resp.FORBIDDEN_403)
     db.session.delete(get_author)
     db.session.commit()
     return response_with(resp.SUCCESS_204)

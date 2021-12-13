@@ -1,6 +1,6 @@
 import requests
 
-base_url = "http://192.168.1.191:5000/"
+base_url = "http://127.0.0.1:5001/"
 
 author_url = base_url + "api/authors/"
 user_url = base_url + "api/users/"
@@ -17,6 +17,12 @@ class Client:
     def get(self, url, **kwargs):
         return requests.get(url, headers=self.headers, **kwargs).json()
 
+    def put(self, url, **kwargs):
+        return requests.put(url, headers=self.headers, **kwargs).json()
+
+    def patch(self, url, **kwargs):
+        return requests.patch(url, headers=self.headers, **kwargs).json()
+
     @classmethod
     def login(cls, username, password):
         var = {"username": username, "password": password}
@@ -28,6 +34,17 @@ class Client:
 def test_get_authors():
     r = Client("admin", "flask").get(author_url)
     print(r)
+    r = Client("lin", "hao").get(author_url)
+    print(r)
+
+
+def test_get_author():
+    r = Client("admin", "flask").get(author_url + "1")
+    print(r)
+    r = Client("lin", "hao").get(author_url + "2")
+    print(r)
+    r = Client("lin", "hao").get(author_url + "1")
+    print(r)
 
 
 def test_post_authors():
@@ -37,6 +54,6 @@ def test_post_authors():
 
 
 def test_post_authors2():
-    var = {"first_name": "ceshi", "last_name": "ceshi"}
+    var = {"first_name": "ceshi2", "last_name": "ceshi2"}
     r = Client("lin", "hao").post(author_url, json=var)
     print(r)

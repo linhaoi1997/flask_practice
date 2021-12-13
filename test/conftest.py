@@ -1,7 +1,7 @@
 import pytest
 import requests
 
-base_url = "http://192.168.1.191:5000/"
+base_url = "http://127.0.0.1:5001/"
 
 author_url = base_url + "api/authors/"
 user_url = base_url + "api/users/"
