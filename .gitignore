@@ -1,0 +1,13 @@
+*.pyc
+*.pyo
+/.pytest_cache
+/ApiTestBasic.egg-info
+/build
+/dist
+test.py
+/venv_new
+.idea/
+*.env
+*env
+config.py
+*/db
