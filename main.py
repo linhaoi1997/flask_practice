@@ -3,6 +3,7 @@ import os
 import sys
 
 import api.utils.responses as resp
+from api.models.users import User
 from api.utils.responses import response_with
 from flask_jwt_extended import JWTManager
 from flask import Flask
@@ -17,6 +18,17 @@ jwt = JWTManager(app)
 app.register_blueprint(author_routes, url_prefix='/api/authors')
 app.register_blueprint(book_routes, url_prefix='/api/books')
 app.register_blueprint(user_routes, url_prefix='/api/users')
+
+
+@jwt.user_identity_loader
+def user_identity_lookup(user):
+    return user.id
+
+
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    identity = jwt_data["sub"]
+    return User.query.filter_by(id=identity).one_or_none()
 
 
 @app.after_request
