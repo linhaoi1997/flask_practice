@@ -11,9 +11,11 @@ author_routes = Blueprint("author_routes", __name__)
 
 
 @author_routes.route('/', methods=['POST'])
+@jwt_required()
 def create_author():
     try:
         data = request.get_json()
+        data["created_by"] = current_user.id
         author_schema = AuthorSchema()
         author = author_schema.load(data)
         result = author_schema.dump(author.create())
@@ -26,8 +28,10 @@ def create_author():
 @author_routes.route('/', methods=['GET'])
 @jwt_required()
 def get_author_list():
-    fetched = Author.query.all()
-    author_schema = AuthorSchema(many=True, only=['first_name', 'last_name', 'id'])
+    fetched = Author.query.filter(Author.created_by == current_user.id).all()
+    for i in fetched:
+        print(i.created.username)
+    author_schema = AuthorSchema(many=True, only=['first_name', 'last_name', 'id', "created_by"])
     authors = author_schema.dump(fetched)
     return response_with(resp.SUCCESS_200, value={"authors": authors})
 
